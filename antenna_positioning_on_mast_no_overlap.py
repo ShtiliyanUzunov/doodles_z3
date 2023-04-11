@@ -1,6 +1,8 @@
 import z3
 from z3 import *
 
+from ast_visualization import expr_to_graph
+
 mast_height = 7
 antennas = [2, 1.7, 1.2]
 spacing = 0.2
@@ -27,7 +29,15 @@ for i in range(len(z3_bottom_points)):
         overlaps.append(z3.Or(check_point > bottom_point, check_point < top_point))
 
 solver = z3.Solver()
-solver.add(assignments + heights_sum + overlaps + val_constraints + start_from_top)
+all_constraints = assignments + heights_sum + overlaps + val_constraints + start_from_top
+
+graph = expr_to_graph(And(all_constraints))
+
+# Save the graph to a file and display it
+graph.render('graphs/antenna_positioning_constraints', view=True, cleanup=True, format='png')
+
+
+solver.add(all_constraints)
 result = solver.check()
 model = solver.model()
 print(model)
